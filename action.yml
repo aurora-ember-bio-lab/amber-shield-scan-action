@@ -1,0 +1,45 @@
+name: 'Amber Shield Scan'
+description: 'Free vulnerability & secret heatmap scan (Trivy + GitLeaks) for your repo, by Amber Shield'
+author: 'Aurora Ember Bio Lab'
+
+branding:
+  icon: 'shield'
+  color: 'orange'
+
+inputs:
+  path:
+    description: 'Path to scan, relative to the repository root.'
+    required: false
+    default: '.'
+  fail-on:
+    description: 'Minimum severity that fails the job: none, low, medium, high, or critical.'
+    required: false
+    default: 'critical'
+  format:
+    description: 'Report format to write: json or sarif.'
+    required: false
+    default: 'json'
+  report-path:
+    description: 'Where to write the report file, relative to the workspace. Defaults to amber-shield-report.json / .sarif depending on format.'
+    required: false
+    default: ''
+
+outputs:
+  report-path:
+    description: 'Path to the generated report file.'
+  vulnerable-files:
+    description: 'Number of files flagged Vulnerable in the heatmap.'
+  dependency-findings:
+    description: 'Number of Trivy dependency/config findings.'
+  secret-findings:
+    description: 'Number of GitLeaks secret findings.'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.path }}
+    - ${{ inputs.fail-on }}
+    - ${{ inputs.format }}
+    - '--report-path'
+    - ${{ inputs.report-path }}
