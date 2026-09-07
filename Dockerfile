@@ -17,7 +17,17 @@
 #     against the advisory before bumping across it:
 #     https://github.com/aquasecurity/trivy/security/advisories/GHSA-69fq-xp46-6x23
 
-FROM rust:1.79-slim-bookworm AS build
+# `slim-bookworm` (no version number) always resolves to the current
+# stable Rust release rather than a version pinned at the moment this file
+# was written. That matters here: Cargo.lock was generated with whatever
+# toolchain built this crate, and an older pinned image can fail
+# `cargo build --locked` outright once a dependency's MSRV moves past it
+# (this happened once already - see git history / CI logs if curious).
+# If you want a fully reproducible build later, pin an exact version tag
+# that you've confirmed both exists on Docker Hub and is new enough to
+# satisfy every dependency's MSRV, then re-test `docker build` before
+# relying on it.
+FROM rust:slim-bookworm AS build
 WORKDIR /src
 
 # tree-sitter grammars compile a small amount of C via the `cc` crate.
